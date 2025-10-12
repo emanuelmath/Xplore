@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.xplore.ui.navigation.Screen
+import com.example.xplore.ui.navigation.XploreNavHost
 import com.example.xplore.ui.theme.XploreTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,17 +22,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             XploreTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                XploreMainScreen()
             }
         }
     }
 }
 
+@Composable
+fun XploreMainScreen() {
+    val navController = rememberNavController()
+    XploreNavHost(navController, Screen.Home.route)
+}
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
