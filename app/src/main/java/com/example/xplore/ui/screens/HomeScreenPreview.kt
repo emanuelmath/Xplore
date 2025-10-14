@@ -9,24 +9,29 @@ import androidx.compose.ui.unit.dp
 import com.example.xplore.data.repositories.CompassRepositoryImpl
 import com.example.xplore.hardware.compass.CompassSensorImpl
 
+
 @Composable
 fun HomeScreen() {
     val context = LocalContext.current
     var hayB by remember { mutableStateOf(false) }
     var cardinalPoint by remember { mutableStateOf("") }
-    val repo = remember { CompassRepositoryImpl(CompassSensorImpl(context)) }
+    var norteA by remember { mutableFloatStateOf(0.0f) }
+
+    val compassRepo = remember { CompassRepositoryImpl(CompassSensorImpl(context)) }
 
     LaunchedEffect(Unit) {
-        repo.startCompass { compass ->
+        compassRepo.startCompass { compass ->
             hayB = compass.isSensorAvailable
             cardinalPoint = compass.cardinalPoint
+            norteA = 360.0f - compass.direction
         }
     }
 
-    Column(modifier = Modifier.padding(top = 50.dp)) {
-        Text("HomePrueba")
-        Text(cardinalPoint)
-        Text("$hayB")
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text("Brújula")
+        Text("Dirección cardinal: $cardinalPoint")
+        Text("Sensor disponible: $hayB")
+        Text("Norte a: $norteA")
+
     }
 }
-
