@@ -5,11 +5,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.xplore.data.repositories.CompassRepositoryImpl
+import com.example.xplore.data.repositories.LightRepositoryImpl
 import com.example.xplore.data.repositories.ProximityRepositoryImpl
 import com.example.xplore.data.repositories.WeatherApiRepositoryImpl
 import com.example.xplore.data.repositories.WeatherRepositoryImpl
 import com.example.xplore.data.repositories.WeatherSensorRepositoryImpl
 import com.example.xplore.hardware.compass.CompassSensorImpl
+import com.example.xplore.hardware.light.LightSensorImpl
 import com.example.xplore.hardware.proximity.ProximitySensor
 import com.example.xplore.hardware.proximity.ProximitySensorImpl
 import com.example.xplore.hardware.weather.WeatherSensor
@@ -25,7 +27,8 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
                 WeatherRepositoryImpl(
                     WeatherApiRepositoryImpl(),
                     WeatherSensorRepositoryImpl(WeatherSensorImpl(context))),
-                ProximityRepositoryImpl(ProximitySensorImpl(context))
+                ProximityRepositoryImpl(ProximitySensorImpl(context)),
+                LightRepositoryImpl(LightSensorImpl(context))
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class.")

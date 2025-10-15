@@ -21,11 +21,11 @@ class ProximitySensorImpl(private val context: Context) : SensorEventListener, P
         this.onDistanceChanged = onDistanceChanged
 
         val proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
-        val sensorsAvailable = proximity != null
-        isSensorAvailable = sensorsAvailable
+        val available = proximity != null
+        isSensorAvailable = available
         maximumRange = proximity?.maximumRange ?: 0f
 
-        onDistanceChanged.invoke(-1f, sensorsAvailable)
+        onDistanceChanged.invoke(-1f, available)
 
         proximity?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)

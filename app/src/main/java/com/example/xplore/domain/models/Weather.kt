@@ -6,5 +6,6 @@ data class Weather(
     val pressure: Double,
     val windSpeed: Double,
     val windDirection: Double,
+    val locationName: String? = null,
     val isSensorAvailable: Boolean
 )

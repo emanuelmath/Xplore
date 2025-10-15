@@ -58,6 +58,9 @@ dependencies {
     // Acceso a la ubicación del dispositivo con FusedLocationProvider (GPS y redes).
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+    // Coroutines para Play Services.
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

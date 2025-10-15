@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.xplore.data.repositories.CompassRepository
 import com.example.xplore.data.repositories.CompassRepositoryImpl
+import com.example.xplore.data.repositories.LightRepository
 import com.example.xplore.data.repositories.ProximityRepository
 import com.example.xplore.data.repositories.WeatherRepository
 import com.example.xplore.data.repositories.WeatherRepositoryImpl
@@ -14,7 +15,8 @@ import com.example.xplore.data.repositories.WeatherRepositoryImpl
 class MainViewModel(
     private val compassRepository: CompassRepository,
     private val weatherRepository: WeatherRepository,
-    private val proximityRepository: ProximityRepository
+    private val proximityRepository: ProximityRepository,
+    private val lightRepository: LightRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MainUiState())
@@ -37,15 +39,27 @@ class MainViewModel(
             proximity ->
             uiState = uiState.copy(proximity = proximity)
         }
+
+        lightRepository.startLight {
+            light ->
+            uiState = uiState.copy(light = light)
+        }
     }
 
-    fun getWeatherWithAPI() {
-
+    /*suspend*/ fun sendLocationData(lat: Double, lon: Double) {
+        uiState = uiState.copy(
+            lat = lat,
+            lon = lon
+        )
+        //getAllSensors()
     }
+
 
     override fun onCleared() {
         super.onCleared()
         compassRepository.stopCompass()
+        proximityRepository.stopProximity()
+        lightRepository.stopLight()
     }
 
 }
