@@ -39,6 +39,10 @@ fun HomeScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         Text("Presión atmosférica: ${uiState.weather?.pressure}")
         Text("Humedad: ${uiState.weather?.humidity}")
 
+        Text("Proximidad")
+        Text("Está cerca: ${uiState.proximity?.isNear}")
+        Text("Distancia: ${uiState.proximity?.distance}")
+
 
     }
 }

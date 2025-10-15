@@ -7,12 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.xplore.data.repositories.CompassRepository
 import com.example.xplore.data.repositories.CompassRepositoryImpl
+import com.example.xplore.data.repositories.ProximityRepository
 import com.example.xplore.data.repositories.WeatherRepository
 import com.example.xplore.data.repositories.WeatherRepositoryImpl
 
 class MainViewModel(
     private val compassRepository: CompassRepository,
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val proximityRepository: ProximityRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MainUiState())
@@ -25,10 +27,15 @@ class MainViewModel(
             Log.d("MainViewModel", "Pasando brújula: $compass")
         }
 
-        if(uiState.lat != null && uiState.lon != null) {
-            uiState = uiState.copy(weather = weatherRepository.getWeatherData(uiState.lat!!, uiState.lon!!))
+        uiState = if(uiState.lat != null && uiState.lon != null) {
+            uiState.copy(weather = weatherRepository.getWeatherData(uiState.lat!!, uiState.lon!!))
         } else {
-            uiState = uiState.copy(weather = weatherRepository.getWeatherData())
+            uiState.copy(weather = weatherRepository.getWeatherData())
+        }
+
+        proximityRepository.startProximity {
+            proximity ->
+            uiState = uiState.copy(proximity = proximity)
         }
     }
 
