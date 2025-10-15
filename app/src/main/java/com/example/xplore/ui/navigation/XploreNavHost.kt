@@ -6,12 +6,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.xplore.ui.navigation.Screen
 import com.example.xplore.ui.screens.HomeScreen
+import com.example.xplore.ui.viewmodels.MainViewModel
 
 @Composable
-fun XploreNavHost(navHostController: NavHostController, startDestination: String) {
+fun XploreNavHost(navHostController: NavHostController, startDestination: String, mainViewModel: MainViewModel) {
     NavHost(navController = navHostController, startDestination = startDestination) {
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(navHostController, mainViewModel)
         }
     }
 }

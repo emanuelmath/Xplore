@@ -27,7 +27,7 @@ class WeatherSensorImpl(
         val humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY)
         val pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)
 
-        sensorsAvailable = tempSensor != null || humiditySensor != null || pressureSensor != null
+        sensorsAvailable = tempSensor != null && humiditySensor != null && pressureSensor != null
 
         tempSensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
         humiditySensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
