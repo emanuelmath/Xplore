@@ -23,5 +23,21 @@ class WeatherSensorRepositoryImpl(
                 }
             }
         }
+    /*override suspend fun getWeatherFromSensor(): Weather =
+        suspendCancellableCoroutine { continuation ->
+            var emitted = false
+            weatherSensor.startListening { weather ->
+                val available = weather.isSensorAvailable &&
+                        weather.temperature != 0.0 &&
+                        weather.pressure != 0.0 &&
+                        weather.humidity != 0.0
+
+                if (!emitted && available) {
+                    emitted = true
+                    continuation.resume(weather.copy(isSensorAvailable = true))
+                    weatherSensor.stopListening()
+                }
+            }
+        }*/
 }
 

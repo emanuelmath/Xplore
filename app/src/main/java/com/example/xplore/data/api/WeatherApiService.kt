@@ -10,12 +10,6 @@ interface WeatherApiService {
     suspend fun getWeather(
         @Query("latitude") lat: Double,
         @Query("longitude") lon: Double,
-        @Query("current") current: String = "temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m"
+        @Query("current") current: String = "temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code"
     ): WeatherResponse
-
-    @GET("reverse")
-    suspend fun getReverseGeocoding(
-        @Query("latitude") lat: Double,
-        @Query("longitude") lon: Double
-    ): ReverseGeocodingResponse
 }

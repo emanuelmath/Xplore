@@ -11,7 +11,11 @@ fun WeatherResponse.toModel(locationName: String? = null): Weather {
         pressure = current.surface_pressure ?: 0.0,
         windSpeed = current.wind_speed_10m ?: 0.0,
         windDirection = current.wind_direction_10m ?: 0.0,
-        locationName = locationName,
+        locationName = locationName ?: "Desconocida",
+        weatherCode = current.weather_code,
         isSensorAvailable = true
     )
 }
+
+
+

@@ -13,5 +13,9 @@ data class MainUiState(
     val lon: Double? = null,
     val lat: Double? = null,
     val errorMessage: String = "",
-    val normalMessage: String = ""
-)
+    val normalMessage: String = "",
+    val isLoading: Boolean = false,
+    val sensorWeather: Weather? = null,
+    val apiWeather: Weather? = null,
+
+    )

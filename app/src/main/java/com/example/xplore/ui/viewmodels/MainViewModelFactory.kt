@@ -27,6 +27,8 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
                 WeatherRepositoryImpl(
                     WeatherApiRepositoryImpl(),
                     WeatherSensorRepositoryImpl(WeatherSensorImpl(context))),
+                WeatherApiRepositoryImpl(),
+                WeatherSensorRepositoryImpl(WeatherSensorImpl(context)),
                 ProximityRepositoryImpl(ProximitySensorImpl(context)),
                 LightRepositoryImpl(LightSensorImpl(context))
             ) as T

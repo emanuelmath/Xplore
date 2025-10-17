@@ -7,17 +7,13 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import com.example.xplore.domain.models.Weather
 
-class WeatherSensorImpl(
-    private val context: Context
-) : WeatherSensor, SensorEventListener {
+class WeatherSensorImpl(private val context: Context) : WeatherSensor, SensorEventListener {
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-
     private var temperature: Double? = null
     private var humidity: Double? = null
     private var pressure: Double? = null
     private var sensorsAvailable = false
-
     private var onWeatherChanged: ((Weather) -> Unit)? = null
 
     override fun startListening(onWeatherChanged: (Weather) -> Unit) {
@@ -45,16 +41,17 @@ class WeatherSensorImpl(
             Sensor.TYPE_PRESSURE -> pressure = event.values[0].toDouble()
         }
 
-        val currentWeather = Weather(
-            temperature = temperature ?: 0.0,
-            humidity = humidity ?: 0.0,
-            pressure = pressure ?: 0.0,
-            windSpeed = 0.0,
-            windDirection = 0.0,
-            isSensorAvailable = sensorsAvailable
+        onWeatherChanged?.invoke(
+            Weather(
+                temperature = temperature ?: 0.0,
+                humidity = humidity ?: 0.0,
+                pressure = pressure ?: 0.0,
+                windSpeed = 0.0,
+                windDirection = 0.0,
+                locationName = "Sensor local",
+                isSensorAvailable = sensorsAvailable
+            )
         )
-
-        onWeatherChanged?.invoke(currentWeather)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
