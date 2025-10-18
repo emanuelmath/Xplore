@@ -1,5 +1,6 @@
 package com.example.xplore.data.repositories
 
+import android.hardware.GeomagneticField
 import com.example.xplore.domain.models.Compass
 import com.example.xplore.hardware.compass.CompassSensor
 
@@ -7,17 +8,39 @@ class CompassRepositoryImpl(
     private val compassSensor: CompassSensor
 ) : CompassRepository {
 
+    private var lastLat: Double? = null
+    private var lastLon: Double? = null
+    private var lastAlt: Double = 0.0
+
     override fun startCompass(onUpdate: (Compass) -> Unit) {
         compassSensor.startListening { degrees, sensorsAvailable ->
-            val cardinal = getCardinalPoint(degrees)
+            val correctedDegrees = if (lastLat != null && lastLon != null) {
+                val geoField = GeomagneticField(
+                    lastLat!!.toFloat(),
+                    lastLon!!.toFloat(),
+                    lastAlt.toFloat(),
+                    System.currentTimeMillis()
+                )
+                (degrees - geoField.declination + 360) % 360
+            } else {
+                degrees
+            }
+
+            val cardinal = getCardinalPoint(correctedDegrees)
             onUpdate(
                 Compass(
-                    direction = degrees,
+                    direction = correctedDegrees,
                     cardinalPoint = cardinal,
                     isSensorAvailable = sensorsAvailable
                 )
             )
         }
+    }
+
+    override fun updateLocation(lat: Double, lon: Double, alt: Double) {
+        lastLat = lat
+        lastLon = lon
+        lastAlt = alt
     }
 
     override fun stopCompass() = compassSensor.stopListening()

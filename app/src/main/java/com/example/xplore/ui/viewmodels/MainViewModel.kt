@@ -55,6 +55,7 @@ class MainViewModel(
     fun onLocationReceived(lat: Double, lon: Double) {
         uiState = uiState.copy(lat = lat, lon = lon)
         getWeatherAuto(lat, lon)
+        compassRepository.updateLocation(lat, lon)
         getWeatherFromApi(lat, lon)
 
     }
