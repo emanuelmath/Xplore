@@ -4,7 +4,9 @@ package com.example.xplore.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +27,10 @@ fun EstacionScreen(
     pressure: Float,
     windSpeed: Float,
     windDirecction: Float,
-    darkMode: Boolean = true
+    location: String,
+    stateOfWeather: String,
+    intImage: Int,
+    backgroundColor: Color = Color.Black
 ) {
     //  Variables simuladas
     //val temperatura = "27°C"
@@ -39,12 +44,13 @@ fun EstacionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(top = 40.dp)
+                .verticalScroll(rememberScrollState())
         ) {
 
             Row(
@@ -58,8 +64,8 @@ fun EstacionScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "ESTACION \n METEREOLOGICA",
-                    color = Color.White,
+                    text = "ESTACIÓN \n METEREOLÓGICA",
+                    color = if(backgroundColor == Color.Black) Color.White else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
@@ -72,46 +78,48 @@ fun EstacionScreen(
             Box(
                 modifier = Modifier
                     .background(Color(0xFF4B5D7C), shape = RoundedCornerShape(10.dp))
-                    .padding(24.dp)
+                    .padding(16.dp)
                     .width(260.dp)
-                    .height(400.dp)
+                    .wrapContentHeight()
+                    .heightIn(max = 400.dp)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-
                     Image(
-                        painter = painterResource(id = R.drawable.nublado),
-                        contentDescription = "Clima nublado",
-                        modifier = Modifier.size(100.dp)
+                        painter = painterResource(intImage),
+                        contentDescription = "Clima",
+                        modifier = Modifier.size(80.dp)
                     )
 
-
                     Text(
-                        text = "NUBLADO - SANTA ANA, EL SALVADOR",
+                        text = "$stateOfWeather - $location",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        fontSize = 20.sp
+                        fontSize = 16.sp
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-
+                    // Datos del clima
                     Column(
                         horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        DatoClimaItem("TEMPERATURA", "%.2f".format(temperature))
-                        DatoClimaItem("HUMEDAD", "%.2f %".format(humity))
-                        DatoClimaItem("PRESION", "%.2f hPa".format(pressure))
+                        DatoClimaItem("TEMPERATURA", "%.2f °C".format(temperature))
+                        DatoClimaItem("HUMEDAD", "%.2f %%".format(humity))
+                        DatoClimaItem("PRESIÓN", "%.2f hPa".format(pressure))
 
-                        Spacer(modifier = Modifier.height(50.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        DatoClimaItem("VELOCIDAD DEL VIENTO", "%.2f km/h".format(windSpeed))
-                        DatoClimaItem("DIRECCION DEL VIENTO", "%.2f °".format(windDirecction))
+                        DatoClimaItem("VIENTO", "%.2f km/h".format(windSpeed))
+                        DatoClimaItem("DIRECCIÓN", "%.2f °".format(windDirecction))
                     }
+
+
                 }
             }
         }

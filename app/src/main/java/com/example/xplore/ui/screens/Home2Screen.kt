@@ -51,6 +51,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.example.xplore.utils.getWeatherDescription
+import com.example.xplore.utils.getWeatherDescriptionImage
 
 //@Preview
 @Composable
@@ -198,7 +200,17 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                         verticalLayout = true
                     )
                 } else {
-                    Box(
+                    ToolCard(title = "CLIMA",
+                        subtitle = "${uiState.apiWeather?.temperature ?: "Desconocida"} °C",
+                        backgroundColor = Color(0xFF263C5C),
+                        icon = R.drawable.clima,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(190.dp),
+                        verticalLayout = true,
+                        onClick = { showWeatherAPIDialog = true }
+                        )
+                    /*Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(190.dp)
@@ -238,6 +250,34 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                                 textAlign = TextAlign.Center
                             )
                         }
+                    }*/
+
+                    if (showWeatherAPIDialog && uiState.apiWeather != null) {
+                        AlertDialog(
+                            onDismissRequest = { showWeatherAPIDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showWeatherAPIDialog = false }) {
+                                    Text("Cerrar")
+                                }
+                            },
+                            text = {
+                                Column(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 500.dp)
+                                ) {
+                                EstacionScreen(
+                                    uiState.apiWeather.temperature.toFloat(),
+                                    uiState.apiWeather.humidity.toFloat(),
+                                    uiState.apiWeather.pressure.toFloat(),
+                                    uiState.apiWeather.windSpeed.toFloat(),
+                                    uiState.apiWeather.windDirection.toFloat(),
+                                    uiState.apiWeather.locationName,
+                                    getWeatherDescription(uiState.apiWeather.weatherCode),
+                                    getWeatherDescriptionImage(uiState.apiWeather.weatherCode),
+                                    backgroundColor
+                                )
+                            }
+                            })
                     }
                 }
             }
