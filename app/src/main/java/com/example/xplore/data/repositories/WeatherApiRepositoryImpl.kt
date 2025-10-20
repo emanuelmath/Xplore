@@ -18,9 +18,10 @@ class WeatherApiRepositoryImpl : WeatherApiRepository {
             null
         }
 
-        val locationName = locationResponse?.results?.firstOrNull()?.let {
-            "${it.name}, ${it.country}"
-        } ?: "Ubicación desconocida"
+        val locationName = locationResponse?.address?.let{
+            "${it.state}, ${it.country}"
+        }
+        ?: "Ubicación desconocida"
 
         return weatherResponse.toModel(locationName)
     }

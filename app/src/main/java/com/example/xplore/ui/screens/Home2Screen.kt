@@ -4,12 +4,15 @@ package com.example.xplore.ui.screens
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -21,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,7 +93,9 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
 
             // Logo y título
@@ -289,6 +295,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     verticalLayout = false
                 )
             }
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
@@ -406,10 +413,18 @@ private suspend fun requestLocation(
 
 @Composable
 fun CompassView(direction: Float) {
+    var previousRotation by rememberSaveable { mutableStateOf(direction) }
+
+    val delta = ((direction - previousRotation + 540f) % 360f) - 180f
+    val adjustedRotation = (previousRotation + delta + 360f) % 360f
+    previousRotation = adjustedRotation
+
     val animatedRotation by animateFloatAsState(
-        targetValue = -direction,
+        targetValue = -adjustedRotation,
+        animationSpec = tween(durationMillis = 300, easing = LinearEasing),
         label = "compass_rotation"
     )
+
     Box(
         modifier = Modifier
             .size(100.dp),
@@ -427,6 +442,7 @@ fun CompassView(direction: Float) {
         )
     }
 }
+
 
 
 @Preview(showSystemUi = true, showBackground = true)

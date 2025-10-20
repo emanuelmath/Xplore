@@ -1,23 +1,30 @@
 package com.example.xplore
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.xplore.ui.components.XploreBottomBar
 import com.example.xplore.ui.navigation.Screen
 import com.example.xplore.ui.navigation.XploreNavHost
 import com.example.xplore.ui.theme.XploreTheme
 import com.example.xplore.ui.viewmodels.MainViewModel
 import com.example.xplore.ui.viewmodels.MainViewModelFactory
+
 
 class MainActivity : ComponentActivity() {
     lateinit var mainViewModel: MainViewModel
@@ -28,10 +35,10 @@ class MainActivity : ComponentActivity() {
             this,
             MainViewModelFactory(this))[MainViewModel::class.java]
 
-
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        enableEdgeToEdge()
 
         setContent {
             XploreTheme {
@@ -44,8 +51,45 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun XploreMainScreen(mainViewModel: MainViewModel) {
     val navController = rememberNavController()
-    XploreNavHost(navController, Screen.Home.route, mainViewModel)
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val uiState = mainViewModel.uiState
+    val isDarkMode = uiState.light?.currentState == "Dark Mode"
+
+    val showBottomBar = when (currentRoute) {
+        Screen.Splash.route -> false//, Screen.Dialog.route -> false // pantallas que no deben mostrarla
+        else -> true
+    }
+
+    val bottomBarColor = if (isDarkMode) Color.Black else Color.White
+
+    Scaffold(
+        containerColor = if (isDarkMode) Color.Black else Color.White,
+        bottomBar = {
+            if (showBottomBar) {
+                XploreBottomBar(
+                    navController = navController,
+                    isDarkMode = isDarkMode,
+                    backgroundColor = bottomBarColor
+                )
+            }
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+        ) {
+            XploreNavHost(
+                navHostController = navController,
+                startDestination = Screen.Home.route,
+                mainViewModel = mainViewModel
+            )
+        }
+    }
 }
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(

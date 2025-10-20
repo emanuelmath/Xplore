@@ -1,7 +1,8 @@
 package com.example.xplore.data.api.dtos
 
 data class ReverseGeocodingResponse(
-    val results: List<GeocodingResult>?
+    val display_name: String,
+    val address: Address?
 )
 
 

@@ -13,6 +13,13 @@ fun XploreNavHost(navHostController: NavHostController, startDestination: String
     NavHost(navController = navHostController, startDestination = startDestination) {
         composable(Screen.Home.route) {
             Home2Screen(navHostController, mainViewModel)
+            //HomeScreen(navHostController, mainViewModel)
+        }
+        composable(Screen.Settings.route) {
+            //Luego agrego
+        }
+        composable (Screen.Tutorial.route) {
+            //Luego agrego
         }
     }
 }
