@@ -19,13 +19,20 @@ import com.example.xplore.R
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun EstacionScreen() {
+fun EstacionScreen(
+    temperature: Float,
+    humity: Float,
+    pressure: Float,
+    windSpeed: Float,
+    windDirecction: Float,
+    darkMode: Boolean = true
+) {
     //  Variables simuladas
-    val temperatura = "27°C"
-    val humedad = "65%"
-    val presion = "1012 hPa"
-    val velocidadViento = "12 km/h"
-    val direccionViento = "Noreste"
+    //val temperatura = "27°C"
+    //val humedad = "65%"
+    //val presion = "1012 hPa"
+    //val velocidadViento = "12 km/h"
+    //val direccionViento = "Noreste"
 
 
 
@@ -96,14 +103,14 @@ fun EstacionScreen() {
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        DatoClimaItem("TEMPERATURA", temperatura)
-                        DatoClimaItem("HUMEDAD", humedad)
-                        DatoClimaItem("PRESION", presion)
+                        DatoClimaItem("TEMPERATURA", "%.2f".format(temperature))
+                        DatoClimaItem("HUMEDAD", "%.2f %".format(humity))
+                        DatoClimaItem("PRESION", "%.2f hPa".format(pressure))
 
                         Spacer(modifier = Modifier.height(50.dp))
 
-                        DatoClimaItem("VELOCIDAD DEL VIENTO", velocidadViento)
-                        DatoClimaItem("DIRECCION DEL VIENTO", direccionViento)
+                        DatoClimaItem("VELOCIDAD DEL VIENTO", "%.2f km/h".format(windSpeed))
+                        DatoClimaItem("DIRECCION DEL VIENTO", "%.2f °".format(windDirecction))
                     }
                 }
             }
@@ -134,5 +141,5 @@ fun DatoClimaItem(label: String, value: String) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewEstacionScreen() {
-    EstacionScreen()
+    //EstacionScreen()
 }

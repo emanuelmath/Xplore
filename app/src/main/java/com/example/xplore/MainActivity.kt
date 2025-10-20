@@ -24,16 +24,25 @@ import com.example.xplore.ui.navigation.XploreNavHost
 import com.example.xplore.ui.theme.XploreTheme
 import com.example.xplore.ui.viewmodels.MainViewModel
 import com.example.xplore.ui.viewmodels.MainViewModelFactory
+import com.example.xplore.ui.viewmodels.SplashViewModel
+import com.example.xplore.ui.viewmodels.SplashViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
     lateinit var mainViewModel: MainViewModel
         private set
 
+    lateinit var splashViewModel: SplashViewModel
+        private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
         mainViewModel = ViewModelProvider(
             this,
             MainViewModelFactory(this))[MainViewModel::class.java]
+        splashViewModel = ViewModelProvider(
+            this,
+            SplashViewModelFactory(this))[SplashViewModel::class.java]
+
 
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -42,14 +51,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             XploreTheme {
-                XploreMainScreen(mainViewModel)
+                XploreMainScreen(mainViewModel, splashViewModel)
             }
         }
     }
 }
 
 @Composable
-fun XploreMainScreen(mainViewModel: MainViewModel) {
+fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewModel) {
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -59,7 +68,7 @@ fun XploreMainScreen(mainViewModel: MainViewModel) {
     val isDarkMode = uiState.light?.currentState == "Dark Mode"
 
     val showBottomBar = when (currentRoute) {
-        Screen.Splash.route -> false//, Screen.Dialog.route -> false // pantallas que no deben mostrarla
+        Screen.Splash.route -> false//, Screen.Dialog.route -> false
         else -> true
     }
 
@@ -83,8 +92,9 @@ fun XploreMainScreen(mainViewModel: MainViewModel) {
         ) {
             XploreNavHost(
                 navHostController = navController,
-                startDestination = Screen.Home.route,
-                mainViewModel = mainViewModel
+                startDestination = Screen.Splash.route,
+                mainViewModel = mainViewModel,
+                splashViewModel = splashViewModel
             )
         }
     }

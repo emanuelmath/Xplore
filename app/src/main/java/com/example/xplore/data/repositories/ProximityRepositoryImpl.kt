@@ -6,7 +6,11 @@ import com.example.xplore.hardware.proximity.ProximitySensor
 class ProximityRepositoryImpl(private val proximitySensor: ProximitySensor) : ProximityRepository {
     override fun startProximity(onUpdate: (Proximity) -> Unit) {
         proximitySensor.startListening { distance, isSensorAvailable ->
-            val isNear = distance < proximitySensor.getMaximumRange()
+            val isNear = if (isSensorAvailable) {
+                distance < proximitySensor.getMaximumRange()
+            } else {
+                false
+            }
             onUpdate(
                 Proximity(
                     isNear = isNear,

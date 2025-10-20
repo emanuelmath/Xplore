@@ -17,16 +17,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xplore.R
 import androidx.compose.material3.CardDefaults
-
+import androidx.compose.ui.text.style.TextAlign
+import com.example.xplore.utils.getCardinalPointName
 
 
 @Composable
-fun BrujulaScreen() {
+fun BrujulaScreen(compassView: (@Composable () -> Unit),
+                  direction: Float,
+                  cardinalPoint: String,
+                  backgroundColor: Color = Color.Black) {
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(backgroundColor)
             .padding(16.dp)
     ) {
         Column(
@@ -46,7 +50,7 @@ fun BrujulaScreen() {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "BRUJULA",
-                    color = Color.White,
+                    color = if(backgroundColor == Color.Black) Color.White else Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 )
@@ -68,6 +72,23 @@ fun BrujulaScreen() {
                         containerColor = Color(0xFF0E6E2E)
                     )
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        compassView()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        val directionFormat =  "%.2f".format(direction)
+                        Text(
+                            text = "Dirección: ${directionFormat}°\nPunto: $cardinalPoint",
+                            textAlign = TextAlign.Center,
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
 
                 }
             }
@@ -80,5 +101,5 @@ fun BrujulaScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewBrujulaScreen() {
-    BrujulaScreen()
+   // BrujulaScreen()
 }

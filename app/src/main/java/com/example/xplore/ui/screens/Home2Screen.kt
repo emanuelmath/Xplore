@@ -9,15 +9,18 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -84,6 +87,12 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
         fontsColor = if(uiState.light.currentState == "Dark Mode") Color.White else Color.Black
     }
 
+    var showCompassDialog by remember { mutableStateOf(false) }
+    var showWeatherAPIDialog by remember { mutableStateOf(false) }
+    var showWeatherSensorDialog by remember { mutableStateOf(false) }
+    var showProximityDialog by remember { mutableStateOf(false) }
+    var showLightDialog by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,8 +147,30 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                         verticalLayout = true,
                         customContent = {
                             CompassView(direction = uiState.compass.direction)
-                        }
+                        },
+                        onClick = { showCompassDialog = true }
                     )
+
+                    if (showCompassDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showCompassDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showCompassDialog = false }) {
+                                    Text("Cerrar")
+                                }
+                            },
+                            text = {
+                                BrujulaScreen(compassView =
+                                    { CompassView(uiState.compass.direction) },
+                                direction = uiState.compass.direction,
+                                cardinalPoint = getCardinalPointName(uiState.compass.cardinalPoint),
+                                    backgroundColor = backgroundColor
+                                )
+                            }
+                        )
+                    }
+
+
                 } else {
                     ToolCard(
                         title = "BRÚJULA",
@@ -155,7 +186,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
 
 
                 if(uiState.sensorWeather != null && uiState.sensorWeather.isSensorAvailable) {
-                    val temperatureFormat = "$%.2f".format(uiState.sensorWeather.temperature)
+                    val temperatureFormat = "%.2f".format(uiState.sensorWeather.temperature)
                     ToolCard(
                         title = "CLIMA",
                         subtitle = "$temperatureFormat °C",
@@ -308,10 +339,11 @@ fun ToolCard(
     icon: Int,
     modifier: Modifier = Modifier,
     verticalLayout: Boolean,
-    customContent: (@Composable () -> Unit)? = null
+    customContent: (@Composable () -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable { onClick?.invoke() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
