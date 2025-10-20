@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.tiles.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.xplore.R
 
 @Composable
@@ -45,7 +45,7 @@ fun AproximacionScreen() {
                 Text(
                     text = "DETECTOR DE\nAPROXIMACIÓN",
                     color = Color.White,
-                    fontSize = 16.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
                 )
@@ -61,7 +61,8 @@ fun AproximacionScreen() {
                     .background(Color(0xFF4C5B75), RoundedCornerShape(10.dp))
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
-            ) {
+            )
+            {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween,
@@ -71,9 +72,10 @@ fun AproximacionScreen() {
                         Text(
                             text = "DISTANCIA:",
                             color = Color.White,
-                            fontSize = 14.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
+                        //aca lo cambias por lo del sensor xd
                         Text(
                             text = "5 CM",
                             color = Color.White,
@@ -85,7 +87,10 @@ fun AproximacionScreen() {
                     Button(
                         onClick = {  },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF136F2E)),
-                        shape = RoundedCornerShape(6.dp)
+                        shape = RoundedCornerShape(6.dp),
+                                modifier = Modifier
+                                    .width(150.dp)
+                            .height(50.dp)
                     ) {
                         Text(
                             text = "LEJOS",
@@ -98,7 +103,7 @@ fun AproximacionScreen() {
                     Image(
                         painter = painterResource(id = R.drawable.icono_radar),
                         contentDescription = "Radar",
-                        modifier = Modifier.size(64.dp)
+                        modifier = Modifier.size(100.dp)
                     )
                 }
             }
