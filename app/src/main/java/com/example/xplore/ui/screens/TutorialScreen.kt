@@ -1,5 +1,6 @@
 package com.example.xplore.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,31 +11,44 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.xplore.R
 
 @Composable
-fun TutorialScreen() {
+fun TutorialScreen(
+    backgroundColor: Color = Color.Black,
+    textColor: Color = Color.White
+) {
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(top = 40.dp)
         ) {
-            Text(
-                text = "TUTORIAL",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row {
+              Image(
+                  painterResource(R.drawable.tutoriallogo),
+                  contentDescription = "Logo de tutorial",
+                  modifier = Modifier.size(50.dp)
+              )
+
+                Text(
+                    text = "TUTORIAL",
+                    color = textColor,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -75,7 +89,8 @@ fun TutorialScreen() {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     TutorialItem("🌦 Clima al instante",
-                        "Podrás revisar humedad y temperatura directamente con sensores de tu dispositivo (si los tiene). Ideal para conocer datos precisos del clima al momento."
+                        "Podrás revisar humedad, presión y temperatura directamente con sensores de tu dispositivo (si los tiene). Ideal para conocer datos precisos del clima al momento." +
+                                "Si no los posees, da permisos para ubicación precisa y con conexión a internet podrás recuperar esos datos."
                     )
 
                     TutorialItem("🧭 Brújula precisa",
@@ -87,17 +102,18 @@ fun TutorialScreen() {
                     )
 
                     TutorialItem("💡 Pantalla adaptativa",
-                        "Detecta la luz ambiental para cambiar automáticamente entre modo claro u oscuro, según la intensidad de luz. ¡Puedes configurarlo manualmente!"
+                        "Detecta la luz ambiental para cambiar automáticamente entre modo claro u oscuro, según la intensidad de luz. ¡También puedes configurarlo manualmente!"
                     )
 
                     TutorialItem("⚙️ En configuración puedes:",
-                        "- Personalizar tu pantalla\n" +
-                                "- Activar o desactivar modos según tus dispositivos"
+                        "- Poner tu nombre de usuario.\n" +
+                                "- Activar o desactivar opciones según tus sensores y su disponibilidad."
                     )
 
-                    TutorialItem("🗺 Y si gustas usar ubicación avanzada...",
-                        "Activa la detección GPS para mayor precisión en tus experiencias."
+                    TutorialItem("🗺✨ Tip informativo",
+                        "Si diste solo ubicación aproximada, ve a Configuración → Ubicación → y permite acceso preciso para una mejor experiencia."
                     )
+
                 }
             }
         }

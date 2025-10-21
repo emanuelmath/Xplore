@@ -7,6 +7,7 @@ import com.example.xplore.data.repositories.LightRepository
 import com.example.xplore.data.repositories.UserRepository
 import com.example.xplore.data.repositories.WeatherSensorRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class ConfigurationViewModel(private val userRepository: UserRepository,
@@ -48,10 +49,12 @@ class ConfigurationViewModel(private val userRepository: UserRepository,
     fun getAllSensors() {
         lightRepository.startLight { light ->
             uiState = uiState.copy(light = light)
+            handleLightSensorAvailability()
         }
 
         viewModelScope.launch {
             uiState = uiState.copy(weather = weatherSensorRepository.getWeatherFromSensor())
+            handleWeatherApiSensorAvailability()
         }
 
     }
@@ -86,5 +89,33 @@ class ConfigurationViewModel(private val userRepository: UserRepository,
             uiState = uiState.copy(optionWeatherAPI = enabled)
         }
     }
+
+    fun handleLightSensorAvailability() {
+        viewModelScope.launch {
+            val hasLightSensor = uiState.light?.isSensorAvailable ?: false
+            if (!hasLightSensor) {
+                userRepository.saveOptionLightDarkMode(true)
+                uiState = uiState.copy(optionLightDarkMode = true)
+            }
+        }
+    }
+
+    fun handleWeatherApiSensorAvailability() {
+        viewModelScope.launch {
+            val hasWeatherSensor = uiState.weather?.isSensorAvailable ?: false
+
+            val savedValue = userRepository.getWeatherAPI().firstOrNull()
+
+            if (savedValue == null) {
+                val initialValue = !hasWeatherSensor
+                userRepository.saveOptionWeatherAPI(initialValue)
+                uiState = uiState.copy(optionWeatherAPI = initialValue)
+            } else {
+                uiState = uiState.copy(optionWeatherAPI = savedValue)
+            }
+        }
+    }
+
+
 
 }

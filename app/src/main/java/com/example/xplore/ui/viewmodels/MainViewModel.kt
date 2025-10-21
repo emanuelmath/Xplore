@@ -16,8 +16,6 @@ import com.example.xplore.data.repositories.LightRepository
 import com.example.xplore.data.repositories.ProximityRepository
 import com.example.xplore.data.repositories.UserRepository
 import com.example.xplore.data.repositories.WeatherApiRepository
-import com.example.xplore.data.repositories.WeatherRepository
-import com.example.xplore.data.repositories.WeatherRepositoryImpl
 import com.example.xplore.data.repositories.WeatherSensorRepository
 import com.example.xplore.domain.models.Weather
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -57,20 +55,29 @@ class MainViewModel(
     fun loadAllPreferences() {
         viewModelScope.launch {
             try {
-                //val userName = userRepository.getUserName().first()
                 val lightDarkMode = userRepository.getLightDarkMode().first()
                 val weatherAPI = userRepository.getWeatherAPI().first()
+                val hasLightSensor = uiState.light?.isSensorAvailable ?: false
+
+                val resolvedLightMode = if (hasLightSensor) {
+                    lightDarkMode
+                } else {
+                    true
+                }
+
+                val manualDarkMode = userRepository.getManualDarkMode().first()
 
                 uiState = uiState.copy(
-                   // userName = userName,
-                    optionLightDarkMode = if(uiState.light != null) lightDarkMode else true,
-                    optionWeatherAPI = weatherAPI
+                    optionLightDarkMode = resolvedLightMode,
+                    optionWeatherAPI = weatherAPI,
+                    isManualDarkModeOn = manualDarkMode
                 )
             } catch (e: Exception) {
                 uiState = uiState.copy(errorMessage = e.message.toString())
             }
         }
     }
+
 
     fun onLocationReceived(lat: Double, lon: Double) {
         uiState = uiState.copy(lat = lat, lon = lon)
@@ -85,6 +92,13 @@ class MainViewModel(
 
     fun setErrorMessage(msg: String) {
         uiState = uiState.copy(errorMessage = msg, normalMessage = "")
+    }
+
+    fun setManualDarkMode(isDark: Boolean) {
+        viewModelScope.launch {
+            userRepository.saveManualDarkMode(isDark)
+            uiState = uiState.copy(isManualDarkModeOn = isDark)
+        }
     }
 
     override fun onCleared() {

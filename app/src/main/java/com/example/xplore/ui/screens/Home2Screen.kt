@@ -34,11 +34,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,7 +59,7 @@ import com.example.xplore.utils.getWeatherDescription
 import com.example.xplore.utils.getWeatherDescriptionImage
 
 //@Preview
-@Composable
+ @Composable
 fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) {
 
     val uiState = mainViewModel.uiState
@@ -86,11 +88,17 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
     }
 
     var backgroundColor by remember { mutableStateOf(Color.Black) }
-    var fontsColor by remember { mutableStateOf(Color.White) }
-    if(uiState.light != null && uiState.light.isSensorAvailable && uiState.optionLightDarkMode == false) {
-        backgroundColor = if(uiState.light.currentState == "Dark Mode") Color.Black else Color.White
-        fontsColor = if(uiState.light.currentState == "Dark Mode") Color.White else Color.Black
+   var fontsColor by remember { mutableStateOf(Color.White) }
+    val modeManually = uiState.isManualDarkModeOn ?: false
+
+    if (uiState.optionLightDarkMode == true) {
+        backgroundColor = if (modeManually) Color.Black else Color.White
+        fontsColor = if (modeManually) Color.White else Color.Black
+    } else if (uiState.light != null && uiState.light.isSensorAvailable) {
+        backgroundColor = if (uiState.light.currentState == "Dark Mode") Color.Black else Color.White
+        fontsColor = if (uiState.light.currentState == "Dark Mode") Color.White else Color.Black
     }
+
 
     var showCompassDialog by remember { mutableStateOf(false) }
     var showWeatherAPIDialog by remember { mutableStateOf(false) }
@@ -98,7 +106,6 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
     var showProximityDialog by remember { mutableStateOf(false) }
     var showLightDialog by remember { mutableStateOf(false) }
 
-    var modeManually by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -343,7 +350,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     title = "DETECTOR DE\nPROXIMIDAD",
                     subtitle = "NO DISPONIBLE",
                     backgroundColor = Color(0xFF263C5C),
-                    icon = R.drawable.aproximacion,
+                    icon = R.drawable.proximidadnodisponible,
                     modifier = Modifier.height(150.dp),
                     verticalLayout = false
                 )
@@ -354,7 +361,11 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
             if(uiState.light != null && uiState.light.isSensorAvailable) {
                 ToolCard(
                     title = "PANTALLA\nADAPTIVA",
-                    subtitle = uiState.light.currentState,
+                    subtitle = if(uiState.optionLightDarkMode == false) uiState.light.currentState else
+                    when(modeManually) {
+                        true -> "Dark Mode"
+                        false -> "Light Mode"
+                    },
                     backgroundColor = Color(0xFF0E6E2E),
                     icon = R.drawable.luz,
                     modifier = Modifier.height(150.dp),
@@ -362,7 +373,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     onClick = { showLightDialog = true }
                 )
 
-                if(showLightDialog) {
+                if(showLightDialog && uiState.optionLightDarkMode == false) {
                     AlertDialog(
                         onDismissRequest = { showLightDialog = false },
                         confirmButton = {
@@ -378,27 +389,54 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
             } else {
                 ToolCard(
                     title = "PANTALLA\nADAPTIVA",
-                    subtitle = "NO DISPONIBLE",
+                    subtitle = "NO DISPONIBLE, SOLO MANUAL",
                     backgroundColor = Color(0xFF0E6E2E),
                     icon = R.drawable.luz,
                     modifier = Modifier.height(150.dp),
                     verticalLayout = false
                 )
             }
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-            if(uiState.optionLightDarkMode == true) {
-                Switch(
-                    checked = !modeManually,
-                    onCheckedChange = {
-                        backgroundColor = if(modeManually) Color.Black else Color.White
-                        fontsColor = if(modeManually) Color.White else Color.Black
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color(0xFF00E676),
-                        uncheckedThumbColor = Color.Gray
-                    )
-                )
+            if (uiState.optionLightDarkMode == true) {
+                Card(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .wrapContentSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF0E6E2E)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                            Text(
+                                text = if (!modeManually) "Modo Claro" else "Modo Oscuro",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                        Switch(
+                            checked = modeManually,
+                            onCheckedChange = {
+                                mainViewModel.setManualDarkMode(it)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color(0xFF00E676),
+                                uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = Color.DarkGray,
+                                checkedTrackColor = Color(0xFF1B5E20)
+                            ),
+                            modifier = Modifier.scale(0.8f)
+                        )
+                    }
+                }
             }
         }
     }
@@ -594,7 +632,7 @@ fun Home2ScreenPreview() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 ToolCard(
-                    title = "BRUJULA",
+                    title = "BRÚJULA",
                     subtitle = "NORTE",
                     backgroundColor = Color(0xFF0E6E2E),
                     icon = R.drawable.brujula,

@@ -20,9 +20,13 @@ class UserPreferencesDataStore(private val context: Context) {
         private val LIGHT_DARK_MODE_MANUALLY_KEY = booleanPreferencesKey("light_dark_mode_manually")
         private val USE_WEATHERAPI_KEY = booleanPreferencesKey("use_weatherapi")
 
+        private val MANUAL_DARK_MODE_KEY = booleanPreferencesKey("manual_dark_mode")
+
         private const val DEFAULT_USER_NAME = "Usuario"
         private const val DEFAULT_LIGHT_DARK_MODE = false
-        private const val DEFAULT_USE_WEATHER_API = true
+        private const val DEFAULT_USE_WEATHER_API = false
+
+        private const val DEFAULT_MANUAL_DARK_MODE = false
     }
 
     val userName: Flow<String> = context.dataStore.data
@@ -57,6 +61,18 @@ class UserPreferencesDataStore(private val context: Context) {
     suspend fun saveOptionWeatherAPI(option: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[USE_WEATHERAPI_KEY] = option
+        }
+    }
+
+    val manualDarkMode: Flow<Boolean> = context.dataStore.data
+        .catch { emit(emptyPreferences()) }
+        .map { prefs ->
+            prefs[MANUAL_DARK_MODE_KEY] ?: DEFAULT_MANUAL_DARK_MODE
+        }
+
+    suspend fun saveManualDarkMode(isDark: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[MANUAL_DARK_MODE_KEY] = isDark
         }
     }
 

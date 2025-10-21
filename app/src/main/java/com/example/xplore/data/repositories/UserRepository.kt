@@ -10,4 +10,6 @@ interface UserRepository {
     fun getWeatherAPI(): Flow<Boolean?>
     suspend fun saveOptionLightDarkMode(option: Boolean)
     suspend fun saveOptionWeatherAPI(option: Boolean)
+    fun getManualDarkMode(): Flow<Boolean>
+    suspend fun saveManualDarkMode(isDark: Boolean)
 }

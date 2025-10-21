@@ -10,7 +10,6 @@ import com.example.xplore.data.repositories.LightRepositoryImpl
 import com.example.xplore.data.repositories.ProximityRepositoryImpl
 import com.example.xplore.data.repositories.UserRepositoryImpl
 import com.example.xplore.data.repositories.WeatherApiRepositoryImpl
-import com.example.xplore.data.repositories.WeatherRepositoryImpl
 import com.example.xplore.data.repositories.WeatherSensorRepositoryImpl
 import com.example.xplore.hardware.compass.CompassSensorImpl
 import com.example.xplore.hardware.light.LightSensorImpl

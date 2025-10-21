@@ -16,19 +16,19 @@ fun XploreNavHost(navHostController: NavHostController,
                   startDestination: String,
                   mainViewModel: MainViewModel,
                   splashViewModel: SplashViewModel,
-                  configurationViewModel: ConfigurationViewModel
-                  //backgroundColor: Color = Color.Black
+                  configurationViewModel: ConfigurationViewModel,
+                  backgroundColor: Color = Color.Black,
+                  textColor: Color = Color.White
 ) {
     NavHost(navController = navHostController, startDestination = startDestination) {
         composable(Screen.Home.route) {
             Home2Screen(navHostController, mainViewModel)
-            //HomeScreen(navHostController, mainViewModel)
         }
         composable(Screen.Settings.route) {
-            ConfiguracionScreen(configurationViewModel)
+            ConfiguracionScreen(configurationViewModel, backgroundColor, textColor)
         }
         composable (Screen.Tutorial.route) {
-            //Luego agrego
+            TutorialScreen(backgroundColor, textColor)
         }
         composable(Screen.Splash.route) {
             PantallaInicialScreen(navHostController, splashViewModel, {

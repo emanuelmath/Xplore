@@ -39,7 +39,8 @@ import com.example.xplore.ui.viewmodels.ConfigurationViewModel
 @Composable
 fun ConfiguracionScreen(
     configurationViewModel: ConfigurationViewModel,
-    backgroundColor: Color = Color.Black
+    backgroundColor: Color = Color.Black,
+    textColor: Color = Color.White
 ) {
 
     val context = LocalContext.current
@@ -59,7 +60,7 @@ fun ConfiguracionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Transparent),
+            .background(backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -72,14 +73,22 @@ fun ConfiguracionScreen(
                 modifier = Modifier.padding(top = 8.dp)
             ) {
 
+
+                    Image(
+                        painterResource(R.drawable.configlogo),
+                        contentDescription = "Logo de configuraación",
+                        modifier = Modifier.size(50.dp)
+                    )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "CONFIGURACIÓN",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start
-                )
+
+                    Text(
+                        text = "CONFIGURACIÓN",
+                        color = textColor,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Start
+                    )
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -100,7 +109,7 @@ fun ConfiguracionScreen(
                 ) {
                     Text(
                         text = "BIENVENIDO",
-                        color = if(backgroundColor == Color.Black) Color.White else Color.Black,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
@@ -177,12 +186,17 @@ fun ConfiguracionScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Si no tienes el sensor de luz, no podrás desactivar esta opción.",
+                                text = if (uiState.light?.isSensorAvailable == true)
+                                    "Puedes elegir entre modo manual o automático."
+                                else
+                                    "Tu dispositivo no tiene sensor de luz, el modo manual es obligatorio.",
                                 color = Color.White.copy(alpha = 0.7f),
                                 fontSize = 14.sp,
                                 textAlign = TextAlign.Start
                             )
                         }
+
+                        val lightSensorAvailable = uiState.light?.isSensorAvailable ?: false
 
                         Switch(
                             checked = modoManual,
@@ -193,9 +207,10 @@ fun ConfiguracionScreen(
                                 checkedThumbColor = Color(0xFF00E676),
                                 uncheckedThumbColor = Color.Gray
                             ),
-                            enabled = uiState.light != null && uiState.light.isSensorAvailable
+                            enabled = lightSensorAvailable
                         )
                     }
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -224,8 +239,11 @@ fun ConfiguracionScreen(
                             )
                         }
 
+                        val weatherSensorAvailable = uiState.weather?.isSensorAvailable ?: false
+                        val usarApiSwitchValue = if (!weatherSensorAvailable) true else uiState.optionWeatherAPI ?: false
+
                         Switch(
-                            checked = usarApi,
+                            checked = usarApiSwitchValue,
                             onCheckedChange = {
                                 configurationViewModel.setWeatherAPIUsage(it)
                             },
@@ -233,8 +251,9 @@ fun ConfiguracionScreen(
                                 checkedThumbColor = Color(0xFF00E676),
                                 uncheckedThumbColor = Color.Gray
                             ),
-                            enabled = uiState.weather != null && uiState.weather.isSensorAvailable
+                            enabled = weatherSensorAvailable
                         )
+
                     }
 
                 }

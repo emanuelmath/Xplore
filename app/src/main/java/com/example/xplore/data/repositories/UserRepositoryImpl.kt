@@ -26,4 +26,10 @@ class UserRepositoryImpl(private val dataStore: UserPreferencesDataStore) : User
     override suspend fun saveOptionWeatherAPI(option: Boolean) {
         dataStore.saveOptionWeatherAPI(option)
     }
+
+    override fun getManualDarkMode(): Flow<Boolean> = dataStore.manualDarkMode
+
+    override suspend fun saveManualDarkMode(isDark: Boolean) {
+        dataStore.saveManualDarkMode(isDark)
+    }
 }

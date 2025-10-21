@@ -74,7 +74,20 @@ fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewMo
     val currentRoute = navBackStackEntry?.destination?.route
 
     val uiState = mainViewModel.uiState
-    val isDarkMode = uiState.light?.currentState == "Dark Mode"
+    val isDarkMode = when {
+        uiState.optionLightDarkMode == true && uiState.isManualDarkModeOn == true -> true
+        uiState.optionLightDarkMode == true && uiState.isManualDarkModeOn == false -> false
+
+        uiState.optionLightDarkMode == false && uiState.light?.currentState == "Dark Mode" -> true
+        uiState.optionLightDarkMode == false && uiState.light?.currentState == "Light Mode" -> false
+
+        else -> false
+    }
+
+
+    val backgroundColor = if (isDarkMode) Color.Black else Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
+
 
     val showBottomBar = when (currentRoute) {
         Screen.Splash.route -> false//, Screen.Dialog.route -> false
@@ -104,7 +117,9 @@ fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewMo
                 startDestination = Screen.Splash.route,
                 mainViewModel = mainViewModel,
                 splashViewModel = splashViewModel,
-                configurationViewModel = configurationViewModel
+                configurationViewModel = configurationViewModel,
+                backgroundColor = backgroundColor,
+                textColor = textColor
             )
         }
     }

@@ -19,5 +19,5 @@ data class MainUiState(
     val optionWeatherAPI: Boolean? = true,
     val sensorWeather: Weather? = null,
     val apiWeather: Weather? = null,
-
+    val isManualDarkModeOn: Boolean? = false
     )
