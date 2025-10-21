@@ -21,7 +21,7 @@ class UserPreferencesDataStore(private val context: Context) {
         private val USE_WEATHERAPI_KEY = booleanPreferencesKey("use_weatherapi")
 
         private const val DEFAULT_USER_NAME = "Usuario"
-        private const val DEFAULT_LIGHT_DARK_MODE = true
+        private const val DEFAULT_LIGHT_DARK_MODE = false
         private const val DEFAULT_USE_WEATHER_API = true
     }
 
@@ -42,8 +42,6 @@ class UserPreferencesDataStore(private val context: Context) {
         .map { prefs ->
             prefs[USE_WEATHERAPI_KEY] ?: DEFAULT_USE_WEATHER_API
         }
-
-    // --- Escritura de preferencias ---
     suspend fun saveUserName(name: String) {
         context.dataStore.edit { prefs ->
             prefs[USER_NAME_KEY] = name.ifBlank { DEFAULT_USER_NAME }

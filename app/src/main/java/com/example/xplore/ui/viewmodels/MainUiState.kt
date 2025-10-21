@@ -15,6 +15,8 @@ data class MainUiState(
     val errorMessage: String = "",
     val normalMessage: String = "",
     val isLoading: Boolean = false,
+    val optionLightDarkMode: Boolean? = true,
+    val optionWeatherAPI: Boolean? = true,
     val sensorWeather: Weather? = null,
     val apiWeather: Weather? = null,
 

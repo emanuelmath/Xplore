@@ -14,6 +14,7 @@ import com.example.xplore.data.repositories.CompassRepository
 import com.example.xplore.data.repositories.CompassRepositoryImpl
 import com.example.xplore.data.repositories.LightRepository
 import com.example.xplore.data.repositories.ProximityRepository
+import com.example.xplore.data.repositories.UserRepository
 import com.example.xplore.data.repositories.WeatherApiRepository
 import com.example.xplore.data.repositories.WeatherRepository
 import com.example.xplore.data.repositories.WeatherRepositoryImpl
@@ -21,16 +22,17 @@ import com.example.xplore.data.repositories.WeatherSensorRepository
 import com.example.xplore.domain.models.Weather
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class MainViewModel(
     private val compassRepository: CompassRepository,
-    private val weatherRepository: WeatherRepository,
     private val weatherApiRepository: WeatherApiRepository,
     private val weatherSensorRepository: WeatherSensorRepository,
     private val proximityRepository: ProximityRepository,
-    private val lightRepository: LightRepository
+    private val lightRepository: LightRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MainUiState())
@@ -52,9 +54,26 @@ class MainViewModel(
         }
     }
 
+    fun loadAllPreferences() {
+        viewModelScope.launch {
+            try {
+                //val userName = userRepository.getUserName().first()
+                val lightDarkMode = userRepository.getLightDarkMode().first()
+                val weatherAPI = userRepository.getWeatherAPI().first()
+
+                uiState = uiState.copy(
+                   // userName = userName,
+                    optionLightDarkMode = if(uiState.light != null) lightDarkMode else true,
+                    optionWeatherAPI = weatherAPI
+                )
+            } catch (e: Exception) {
+                uiState = uiState.copy(errorMessage = e.message.toString())
+            }
+        }
+    }
+
     fun onLocationReceived(lat: Double, lon: Double) {
         uiState = uiState.copy(lat = lat, lon = lon)
-        getWeatherAuto(lat, lon)
         compassRepository.updateLocation(lat, lon)
         getWeatherFromApi(lat, lon)
 
@@ -93,17 +112,6 @@ class MainViewModel(
                 uiState = uiState.copy(sensorWeather = weather)
             } catch (e: Exception) {
                 uiState = uiState.copy(errorMessage = "Error en el sensor: ${e.message}")
-            }
-        }
-    }
-
-    fun getWeatherAuto(lat: Double, lon: Double) {
-        viewModelScope.launch {
-            try {
-                val weatherAuto = weatherRepository.getWeatherData(lat, lon)
-                uiState = uiState.copy(weather = weatherAuto)
-            } catch (e: Exception) {
-                uiState = uiState.copy(errorMessage = "Error en el auto: ${e.message}")
             }
         }
     }

@@ -47,15 +47,14 @@ fun ConfiguracionScreen(
     val currentName = uiState.userName ?: "Usuario"
     var editableName by rememberSaveable { mutableStateOf(currentName) }
     var canEdit by remember { mutableStateOf(false) }
-    var modoManual by remember { mutableStateOf(uiState.optionLightDarkMode == true) }
-    var usarApi by remember { mutableStateOf(uiState.optionWeatherAPI == true) }
-    val canChangeManuallyLightDarkMode = uiState.isLightSensorAvailable ?: false
-    val canChangeApiUse = uiState.isWeatherSensorAvailable ?: false
+    val modoManual = uiState.optionLightDarkMode ?: true
+    val usarApi = uiState.optionWeatherAPI ?: true
+
 
     LaunchedEffect(Unit) {
         configurationViewModel.loadAllPreferences()
+        configurationViewModel.getAllSensors()
     }
-
 
     Box(
         modifier = Modifier
@@ -188,14 +187,13 @@ fun ConfiguracionScreen(
                         Switch(
                             checked = modoManual,
                             onCheckedChange = {
-                                modoManual = it
                                 configurationViewModel.setLightDarkMode(it)
                             },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color(0xFF00E676),
                                 uncheckedThumbColor = Color.Gray
                             ),
-                            enabled = canChangeManuallyLightDarkMode
+                            enabled = uiState.light != null && uiState.light.isSensorAvailable
                         )
                     }
 
@@ -229,14 +227,13 @@ fun ConfiguracionScreen(
                         Switch(
                             checked = usarApi,
                             onCheckedChange = {
-                                usarApi = it
                                 configurationViewModel.setWeatherAPIUsage(it)
                             },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color(0xFF00E676),
                                 uncheckedThumbColor = Color.Gray
                             ),
-                            enabled = canChangeApiUse
+                            enabled = uiState.weather != null && uiState.weather.isSensorAvailable
                         )
                     }
 

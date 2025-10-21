@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.xplore.data.repositories.LightRepository
 import com.example.xplore.data.repositories.UserRepository
 import com.example.xplore.data.repositories.WeatherSensorRepository
-import com.example.xplore.data.repositories.awaitLightSensorAvailable
-import com.example.xplore.data.repositories.awaitWeatherSensorAvailable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -47,22 +45,27 @@ class ConfigurationViewModel(private val userRepository: UserRepository,
         }
     }
 
+    fun getAllSensors() {
+        lightRepository.startLight { light ->
+            uiState = uiState.copy(light = light)
+        }
+
+        viewModelScope.launch {
+            uiState = uiState.copy(weather = weatherSensorRepository.getWeatherFromSensor())
+        }
+
+    }
     fun loadAllPreferences() {
         viewModelScope.launch {
             try {
                 val userName = userRepository.getUserName().first()
                 val lightDarkMode = userRepository.getLightDarkMode().first()
                 val weatherAPI = userRepository.getWeatherAPI().first()
-                //val isLightSensorAvailable = lightRepository.awaitLightSensorAvailable()
-                //val isWeatherSensorAvailable = weatherSensorRepository.awaitWeatherSensorAvailable()
-
 
                 uiState = uiState.copy(
                     userName = userName,
                     optionLightDarkMode = lightDarkMode,
                     optionWeatherAPI = weatherAPI,
-                    //isLightSensorAvailable = isLightSensorAvailable,
-                    //isWeatherSensorAvailable = isWeatherSensorAvailable
                 )
             } catch (e: Exception) {
                 uiState = uiState.copy(errorMessage = e.message)

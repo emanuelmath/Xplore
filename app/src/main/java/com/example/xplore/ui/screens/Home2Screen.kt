@@ -19,6 +19,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -80,11 +82,12 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
 
     LaunchedEffect(Unit) {
         mainViewModel.getAllSensors()
+        mainViewModel.loadAllPreferences()
     }
 
     var backgroundColor by remember { mutableStateOf(Color.Black) }
     var fontsColor by remember { mutableStateOf(Color.White) }
-    if(uiState.light != null && uiState.light.isSensorAvailable) {
+    if(uiState.light != null && uiState.light.isSensorAvailable && uiState.optionLightDarkMode == false) {
         backgroundColor = if(uiState.light.currentState == "Dark Mode") Color.Black else Color.White
         fontsColor = if(uiState.light.currentState == "Dark Mode") Color.White else Color.Black
     }
@@ -94,6 +97,8 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
     var showWeatherSensorDialog by remember { mutableStateOf(false) }
     var showProximityDialog by remember { mutableStateOf(false) }
     var showLightDialog by remember { mutableStateOf(false) }
+
+    var modeManually by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -187,7 +192,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                 }
 
 
-                if(uiState.sensorWeather != null && uiState.sensorWeather.isSensorAvailable) {
+                if(uiState.sensorWeather != null && uiState.sensorWeather.isSensorAvailable && uiState.optionWeatherAPI == false) {
                     val temperatureFormat = "%.2f".format(uiState.sensorWeather.temperature)
                     ToolCard(
                         title = "CLIMA",
@@ -269,7 +274,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if(uiState.sensorWeather == null || !uiState.sensorWeather.isSensorAvailable) {
+            if(uiState.sensorWeather == null || !uiState.sensorWeather.isSensorAvailable || uiState.optionWeatherAPI == true) {
                 if (!hasPermission) {
                     Text(
                         "Para obtener clima real, otorga permiso de ubicación.",
@@ -332,10 +337,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                         text = {
                             AproximacionScreen(uiState.proximity.distance, uiState.proximity.isNear, backgroundColor)
                         })
-
                 }
-
-
             } else {
                 ToolCard(
                     title = "DETECTOR DE\nPROXIMIDAD",
@@ -384,6 +386,20 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                 )
             }
             Spacer(modifier = Modifier.height(100.dp))
+
+            if(uiState.optionLightDarkMode == true) {
+                Switch(
+                    checked = !modeManually,
+                    onCheckedChange = {
+                        backgroundColor = if(modeManually) Color.Black else Color.White
+                        fontsColor = if(modeManually) Color.White else Color.Black
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color(0xFF00E676),
+                        uncheckedThumbColor = Color.Gray
+                    )
+                )
+            }
         }
     }
 }
