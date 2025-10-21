@@ -1,0 +1,87 @@
+package com.example.xplore.ui.viewmodels
+
+import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.xplore.data.repositories.LightRepository
+import com.example.xplore.data.repositories.UserRepository
+import com.example.xplore.data.repositories.WeatherSensorRepository
+import com.example.xplore.data.repositories.awaitLightSensorAvailable
+import com.example.xplore.data.repositories.awaitWeatherSensorAvailable
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+class ConfigurationViewModel(private val userRepository: UserRepository,
+                            private val weatherSensorRepository: WeatherSensorRepository,
+                            private val lightRepository: LightRepository
+    ) : ViewModel() {
+
+    var uiState by mutableStateOf(ConfigurationUiState())
+        private set
+
+
+    fun getUserName() {
+        viewModelScope.launch {
+            uiState = try {
+                uiState.copy(
+                    userName = userRepository.getUserName().first()
+                )
+            } catch (e: Exception) {
+                uiState.copy(
+                    errorMessage = e.message
+                )
+            }
+        }
+    }
+
+    fun editUserName(newUserName: String) {
+        viewModelScope.launch {
+            try {
+                userRepository.saveUserName(newUserName)
+                getUserName()
+            } catch(e: Exception) {
+                uiState = uiState.copy(
+                    errorMessage = e.message
+                )
+            }
+        }
+    }
+
+    fun loadAllPreferences() {
+        viewModelScope.launch {
+            try {
+                val userName = userRepository.getUserName().first()
+                val lightDarkMode = userRepository.getLightDarkMode().first()
+                val weatherAPI = userRepository.getWeatherAPI().first()
+                //val isLightSensorAvailable = lightRepository.awaitLightSensorAvailable()
+                //val isWeatherSensorAvailable = weatherSensorRepository.awaitWeatherSensorAvailable()
+
+
+                uiState = uiState.copy(
+                    userName = userName,
+                    optionLightDarkMode = lightDarkMode,
+                    optionWeatherAPI = weatherAPI,
+                    //isLightSensorAvailable = isLightSensorAvailable,
+                    //isWeatherSensorAvailable = isWeatherSensorAvailable
+                )
+            } catch (e: Exception) {
+                uiState = uiState.copy(errorMessage = e.message)
+            }
+        }
+    }
+
+    fun setLightDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            userRepository.saveOptionLightDarkMode(enabled)
+            uiState = uiState.copy(optionLightDarkMode = enabled)
+        }
+    }
+
+    fun setWeatherAPIUsage(enabled: Boolean) {
+        viewModelScope.launch {
+            userRepository.saveOptionWeatherAPI(enabled)
+            uiState = uiState.copy(optionWeatherAPI = enabled)
+        }
+    }
+
+}

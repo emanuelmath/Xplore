@@ -1,11 +1,13 @@
 package com.example.xplore.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.xplore.ui.navigation.Screen
 import com.example.xplore.ui.screens.*
+import com.example.xplore.ui.viewmodels.ConfigurationViewModel
 import com.example.xplore.ui.viewmodels.MainViewModel
 import com.example.xplore.ui.viewmodels.SplashViewModel
 
@@ -13,7 +15,9 @@ import com.example.xplore.ui.viewmodels.SplashViewModel
 fun XploreNavHost(navHostController: NavHostController,
                   startDestination: String,
                   mainViewModel: MainViewModel,
-                  splashViewModel: SplashViewModel
+                  splashViewModel: SplashViewModel,
+                  configurationViewModel: ConfigurationViewModel
+                  //backgroundColor: Color = Color.Black
 ) {
     NavHost(navController = navHostController, startDestination = startDestination) {
         composable(Screen.Home.route) {
@@ -21,7 +25,7 @@ fun XploreNavHost(navHostController: NavHostController,
             //HomeScreen(navHostController, mainViewModel)
         }
         composable(Screen.Settings.route) {
-            //Luego agrego
+            ConfiguracionScreen(configurationViewModel)
         }
         composable (Screen.Tutorial.route) {
             //Luego agrego

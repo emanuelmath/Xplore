@@ -75,7 +75,9 @@ fun LuzScreen(lux: Float, mode: String = "Dark Mode", backgroundColor: Color = C
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = "Lux recuperado: $lux"
+                        text = "Lux recuperado: $lux",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Text(

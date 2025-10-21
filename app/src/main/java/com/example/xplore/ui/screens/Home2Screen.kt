@@ -197,11 +197,11 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                         modifier = Modifier
                             .weight(1f)
                             .height(190.dp),
-                        verticalLayout = true
+                        verticalLayout = true,
+                        onClick = { showWeatherSensorDialog = true }
                     )
 
                     if(showWeatherSensorDialog) {
-                        if (showWeatherAPIDialog && uiState.apiWeather != null) {
                             AlertDialog(
                                 onDismissRequest = { showWeatherSensorDialog = false },
                                 confirmButton = {
@@ -222,7 +222,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                                         )
                                     }
                                 }
-                            ) }
+                            )
                     }
                 } else {
                     ToolCard(title = "CLIMA",
@@ -274,6 +274,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     Text(
                         "Para obtener clima real, otorga permiso de ubicación.",
                         color = fontsColor,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )

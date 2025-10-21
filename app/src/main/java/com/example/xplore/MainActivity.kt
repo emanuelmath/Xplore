@@ -22,10 +22,12 @@ import com.example.xplore.ui.components.XploreBottomBar
 import com.example.xplore.ui.navigation.Screen
 import com.example.xplore.ui.navigation.XploreNavHost
 import com.example.xplore.ui.theme.XploreTheme
+import com.example.xplore.ui.viewmodels.ConfigurationViewModel
 import com.example.xplore.ui.viewmodels.MainViewModel
-import com.example.xplore.ui.viewmodels.MainViewModelFactory
+import com.example.xplore.ui.viewmodels.*
 import com.example.xplore.ui.viewmodels.SplashViewModel
 import com.example.xplore.ui.viewmodels.SplashViewModelFactory
+
 
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +37,9 @@ class MainActivity : ComponentActivity() {
     lateinit var splashViewModel: SplashViewModel
         private set
 
+    lateinit var configurationViewModel: ConfigurationViewModel
+       private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
         mainViewModel = ViewModelProvider(
             this,
@@ -42,6 +47,10 @@ class MainActivity : ComponentActivity() {
         splashViewModel = ViewModelProvider(
             this,
             SplashViewModelFactory(this))[SplashViewModel::class.java]
+        configurationViewModel = ViewModelProvider(
+            this,
+            ConfigurationViewModelFactory(this))[ConfigurationViewModel::class.java]
+
 
 
         super.onCreate(savedInstanceState)
@@ -51,14 +60,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             XploreTheme {
-                XploreMainScreen(mainViewModel, splashViewModel)
+                XploreMainScreen(mainViewModel, splashViewModel, configurationViewModel)
             }
         }
     }
 }
 
 @Composable
-fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewModel) {
+fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewModel, configurationViewModel: ConfigurationViewModel) {
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -94,7 +103,8 @@ fun XploreMainScreen(mainViewModel: MainViewModel, splashViewModel: SplashViewMo
                 navHostController = navController,
                 startDestination = Screen.Splash.route,
                 mainViewModel = mainViewModel,
-                splashViewModel = splashViewModel
+                splashViewModel = splashViewModel,
+                configurationViewModel = configurationViewModel
             )
         }
     }

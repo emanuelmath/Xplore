@@ -40,8 +40,8 @@ fun PantallaInicialScreen(
     val uiState = splashViewModel.uiState
 
     LaunchedEffect(Unit) {
-        delay(2000L)
         splashViewModel.getUserName()
+        delay(2000L)
     }
 
     Box(
