@@ -199,6 +199,31 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                             .height(190.dp),
                         verticalLayout = true
                     )
+
+                    if(showWeatherSensorDialog) {
+                        if (showWeatherAPIDialog && uiState.apiWeather != null) {
+                            AlertDialog(
+                                onDismissRequest = { showWeatherSensorDialog = false },
+                                confirmButton = {
+                                    TextButton(onClick = { showWeatherSensorDialog = false }) {
+                                        Text("Cerrar")
+                                    }
+                                },
+                                text = {
+                                    Column(modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 500.dp)
+                                    ) {
+                                        EstacionSensorScreen(
+                                            uiState.sensorWeather.temperature.toFloat(),
+                                            uiState.sensorWeather.humidity.toFloat(),
+                                            uiState.sensorWeather.pressure.toFloat(),
+                                            backgroundColor
+                                        )
+                                    }
+                                }
+                            ) }
+                    }
                 } else {
                     ToolCard(title = "CLIMA",
                         subtitle = "${uiState.apiWeather?.temperature ?: "Desconocida"} °C",
@@ -210,47 +235,7 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                         verticalLayout = true,
                         onClick = { showWeatherAPIDialog = true }
                         )
-                    /*Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(190.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF263C5C))
-                                .padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.clima),
-                                contentDescription = "Clima",
-                                modifier = Modifier.size(100.dp)
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = "CLIMA",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp,
-                                lineHeight = 28.sp,
-                                textAlign = TextAlign.Center
-                            )
-                            val subtitle = when {
-                                !hasPermission -> "NO DISPONIBLE"
-                                uiState.apiWeather?.temperature != null -> "${uiState.apiWeather.temperature} °C"
-                                else -> "Obteniendo datos..."
-                            }
-                            Text(
-                                text = subtitle,
-                                color = Color.White,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }*/
+
 
                     if (showWeatherAPIDialog && uiState.apiWeather != null) {
                         AlertDialog(
@@ -332,8 +317,24 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     backgroundColor = if(!uiState.proximity.isNear) Color(0xFF263C5C) else Color(0xFF5C2626),
                     icon = R.drawable.aproximacion,
                     modifier = Modifier.height(150.dp),
-                    verticalLayout = false
+                    verticalLayout = false,
+                    onClick = { showProximityDialog = true }
                 )
+                if(showProximityDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showProximityDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showProximityDialog = false }) {
+                                Text("Cerrar")
+                            }
+                        },
+                        text = {
+                            AproximacionScreen(uiState.proximity.distance, uiState.proximity.isNear, backgroundColor)
+                        })
+
+                }
+
+
             } else {
                 ToolCard(
                     title = "DETECTOR DE\nPROXIMIDAD",
@@ -354,8 +355,23 @@ fun Home2Screen(navController: NavHostController, mainViewModel: MainViewModel) 
                     backgroundColor = Color(0xFF0E6E2E),
                     icon = R.drawable.luz,
                     modifier = Modifier.height(150.dp),
-                    verticalLayout = false
+                    verticalLayout = false,
+                    onClick = { showLightDialog = true }
                 )
+
+                if(showLightDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showLightDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showLightDialog = false }) {
+                                Text("Cerrar")
+                            }
+                        },
+                        text = {
+                            LuzScreen(uiState.light.lux, uiState.light.currentState, backgroundColor)
+                        })
+
+                }
             } else {
                 ToolCard(
                     title = "PANTALLA\nADAPTIVA",

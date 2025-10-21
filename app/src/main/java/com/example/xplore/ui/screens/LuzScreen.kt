@@ -13,18 +13,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xplore.R
 import androidx.compose.ui.tooling.preview.Preview
+import java.util.Locale
 
 @Composable
-fun LuzScreen() {
-
+fun LuzScreen(lux: Float, mode: String = "Dark Mode", backgroundColor: Color = Color.Black) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -44,7 +45,7 @@ fun LuzScreen() {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "PANTALLA ADAPTIVA",
-                    color = Color.White,
+                    color = if(backgroundColor == Color.Black) Color.White else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
@@ -67,14 +68,18 @@ fun LuzScreen() {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.sol),
-                        contentDescription = "Clima nublado",
+                        painter = painterResource(if(mode == "Light Mode") R.drawable.sol else R.drawable.luna),
+                        contentDescription = "Modo de Luz",
                         modifier = Modifier.size(100.dp)
                     )
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = "ACTUALMENTE ESTAS EN MODO CLARO",
+                        text = "Lux recuperado: $lux"
+                    )
+
+                    Text(
+                        text = "ESTÁS EN ${mode.uppercase()}",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -95,5 +100,5 @@ fun LuzScreen() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewLuzScreen() {
-    LuzScreen()
+    //LuzScreen()
 }
