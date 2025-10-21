@@ -128,6 +128,86 @@ fun EstacionScreen(
 
 
 @Composable
+fun EstacionSensorScreen(
+    temperature: Float,
+    humity: Float,
+    pressure: Float,
+    backgroundColor: Color = Color.Black
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 40.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.clima),
+                    contentDescription = "Icono clima",
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "ESTACIÓN \n METEREOLÓGICA",
+                    color = if(backgroundColor == Color.Black) Color.White else Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFF4B5D7C), shape = RoundedCornerShape(10.dp))
+                    .padding(16.dp)
+                    .width(260.dp)
+                    .wrapContentHeight()
+                    .heightIn(max = 400.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.parcialmente_nublado),
+                        contentDescription = "Clima",
+                        modifier = Modifier.size(80.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Datos del clima
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        DatoClimaItem("TEMPERATURA", "%.2f °C".format(temperature))
+                        DatoClimaItem("HUMEDAD", "%.2f %%".format(humity))
+                        DatoClimaItem("PRESIÓN", "%.2f hPa".format(pressure))
+
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun DatoClimaItem(label: String, value: String) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,

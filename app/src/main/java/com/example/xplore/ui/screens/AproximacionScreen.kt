@@ -3,6 +3,7 @@ package com.example.xplore.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,11 +19,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.xplore.R
 
 @Composable
-fun AproximacionScreen() {
+fun AproximacionScreen(
+    distance: Float?,
+    state: Boolean = true,
+    backgroundColor: Color = Color.Black
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(backgroundColor)
             .padding(16.dp)
     ) {
         Column(
@@ -43,8 +48,8 @@ fun AproximacionScreen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "DETECTOR DE\nAPROXIMACIÓN",
-                    color = Color.White,
+                    text = "DETECTOR DE\nPROXIMIDAD",
+                    color = if(backgroundColor == Color.Black) Color.White else Color.Black,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
@@ -77,26 +82,28 @@ fun AproximacionScreen() {
                         )
                         //aca lo cambias por lo del sensor xd
                         Text(
-                            text = "5 CM",
+                            text = "${distance ?: 0.0} CM",
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
-                    }
 
-                    Button(
-                        onClick = {  },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF136F2E)),
-                        shape = RoundedCornerShape(6.dp),
-                                modifier = Modifier
-                                    .width(150.dp)
+                        Spacer(Modifier.size(90.dp))
+
+                        Box(modifier = Modifier.width(150.dp)
                             .height(50.dp)
-                    ) {
-                        Text(
-                            text = "LEJOS",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
+                            .background(if(state) Color.Red else  Color(0xFF136F2E) )
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = if (state) "CERCA" else "LEJOS",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        }
                     }
 
 
@@ -114,5 +121,5 @@ fun AproximacionScreen() {
 @Preview(showBackground = true)
 @Composable
 fun AproximacionScreenPreview() {
-    AproximacionScreen()
+    AproximacionScreen(1f, true)
 }
