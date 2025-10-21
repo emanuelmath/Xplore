@@ -1,56 +1,70 @@
 package com.example.xplore.ui.screens
 
+
 import android.Manifest
-import android.content.pm.PackageManager
-import android.location.Location
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
-import com.example.xplore.ui.navigation.Screen
-import com.example.xplore.ui.viewmodels.MainViewModel
-import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.delay
-import com.google.android.gms.location.Priority
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.xplore.utils.getWeatherDescription
+import androidx.navigation.NavHostController
+import com.example.xplore.R
+import com.example.xplore.ui.viewmodels.MainViewModel
+import com.example.xplore.utils.getCardinalPointName
 import com.google.android.gms.location.FusedLocationProviderClient
-import kotlinx.coroutines.Dispatchers
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.example.xplore.utils.getWeatherDescription
+import com.example.xplore.utils.getWeatherDescriptionImage
 
-
-@Composable
+//@Preview
+ @Composable
 fun HomeScreen(navController: NavHostController, mainViewModel: MainViewModel) {
-    val context = LocalContext.current
+
     val uiState = mainViewModel.uiState
+    val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     var hasPermission by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { perms ->
@@ -65,103 +79,452 @@ fun HomeScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         }
     }
 
+
     LaunchedEffect(Unit) {
         mainViewModel.getAllSensors()
+        mainViewModel.loadAllPreferences()
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
+    var backgroundColor by remember { mutableStateOf(Color.Black) }
+   var fontsColor by remember { mutableStateOf(Color.White) }
+    val modeManually = uiState.isManualDarkModeOn ?: false
+
+    if (uiState.optionLightDarkMode == true) {
+        backgroundColor = if (modeManually) Color.Black else Color.White
+        fontsColor = if (modeManually) Color.White else Color.Black
+    } else if (uiState.light != null && uiState.light.isSensorAvailable) {
+        backgroundColor = if (uiState.light.currentState == "Dark Mode") Color.Black else Color.White
+        fontsColor = if (uiState.light.currentState == "Dark Mode") Color.White else Color.Black
+    }
+
+
+    var showCompassDialog by remember { mutableStateOf(false) }
+    var showWeatherAPIDialog by remember { mutableStateOf(false) }
+    var showWeatherSensorDialog by remember { mutableStateOf(false) }
+    var showProximityDialog by remember { mutableStateOf(false) }
+    var showLightDialog by remember { mutableStateOf(false) }
+
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(backgroundColor)
+            .padding(horizontal = 20.dp, vertical = 40.dp)
     ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
 
-        if (uiState.normalMessage.isNotEmpty()) {
-            Text(uiState.normalMessage, color = Color.Blue, fontSize = 14.sp)
-        }
-        if (uiState.errorMessage.isNotEmpty()) {
-            Text(uiState.errorMessage, color = Color.Red, fontSize = 14.sp)
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Text("Clima (repositorio automático)")
-            Text("Temp: ${uiState.weather?.temperature} °C")
-            Text("Humedad: ${uiState.weather?.humidity} %")
-            Text("Presión: ${uiState.weather?.pressure} hPa")
-            Text("Viento: ${uiState.weather?.windSpeed} km/h - ${uiState.weather?.windDirection}°")
-            Text("Ubicación: ${uiState.weather?.locationName}")
-            Text("Usó sensor: ${uiState.weather?.isSensorAvailable}")
-
-
-        Spacer(Modifier.height(16.dp))
-
-        Text("Clima (solo sensor)")
-        if ( uiState.sensorWeather?.isSensorAvailable == true) { //uiState.sensorWeather != null &&
-            Text("Temp: ${uiState.sensorWeather.temperature} °C")
-            Text("Humedad: ${uiState.sensorWeather.humidity} %")
-            Text("Presión: ${uiState.sensorWeather.pressure} hPa")
-        } else {
-            Text("Sensor no disponible o datos incompletos.")
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Text("Clima (solo API)")
-        if (uiState.apiWeather != null) {
-            Text("Temp: ${uiState.apiWeather.temperature} °C")
-            Text("Humedad: ${uiState.apiWeather.humidity} %")
-            Text("Presión: ${uiState.apiWeather.pressure} hPa")
-            Text("Viento: ${uiState.apiWeather.windSpeed} km/h - ${uiState.apiWeather.windDirection}°")
-            Text("Ubicación: ${uiState.apiWeather.locationName}")
-            Text("Estado: ${getWeatherDescription(uiState.apiWeather.weatherCode)}")
-        } else {
-            Text("Datos de API no disponibles aún.")
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        if (!hasPermission) {
-            Text("Para obtener clima real, otorga permiso de ubicación.")
-            Button(onClick = {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
+            // Logo y título
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.xplorelogo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(55.dp)
                 )
-            }) {
-                Text("Permitir ubicación")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "HERRAMIENTAS",
+                    color = fontsColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp
+                )
             }
-        } else {
-            Button(onClick = {
-                coroutineScope.launch {
-                    requestLocation(mainViewModel, fusedLocationClient)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.compass != null && uiState.compass.isSensorAvailable) {
+                    ToolCard(
+                        title = "BRÚJULA",
+                        subtitle = getCardinalPointName(uiState.compass.cardinalPoint),
+                        backgroundColor = Color(0xFF0E6E2E),
+                        icon = R.drawable.brujulasinaguja,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(190.dp),
+                        verticalLayout = true,
+                        customContent = {
+                            CompassView(direction = uiState.compass.direction)
+                        },
+                        onClick = { showCompassDialog = true }
+                    )
+
+                    if (showCompassDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showCompassDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showCompassDialog = false }) {
+                                    Text("Cerrar")
+                                }
+                            },
+                            text = {
+                                BrujulaScreen(compassView =
+                                    { CompassView(uiState.compass.direction) },
+                                direction = uiState.compass.direction,
+                                cardinalPoint = getCardinalPointName(uiState.compass.cardinalPoint),
+                                    backgroundColor = backgroundColor
+                                )
+                            }
+                        )
+                    }
+
+
+                } else {
+                    ToolCard(
+                        title = "BRÚJULA",
+                        subtitle = "NO DISPONIBLE",
+                        backgroundColor = Color(0xFF0E6E2E),
+                        icon = R.drawable.brujulanodisponible,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(190.dp),
+                        verticalLayout = true
+                    )
                 }
-            }) {
-                Text("Obtener clima con ubicación")
+
+
+                if(uiState.sensorWeather != null && uiState.sensorWeather.isSensorAvailable && uiState.optionWeatherAPI == false) {
+                    val temperatureFormat = "%.2f".format(uiState.sensorWeather.temperature)
+                    ToolCard(
+                        title = "CLIMA",
+                        subtitle = "$temperatureFormat °C",
+                        backgroundColor = Color(0xFF263C5C),
+                        icon = R.drawable.clima,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(190.dp),
+                        verticalLayout = true,
+                        onClick = { showWeatherSensorDialog = true }
+                    )
+
+                    if(showWeatherSensorDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showWeatherSensorDialog = false },
+                                confirmButton = {
+                                    TextButton(onClick = { showWeatherSensorDialog = false }) {
+                                        Text("Cerrar")
+                                    }
+                                },
+                                text = {
+                                    Column(modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 500.dp)
+                                    ) {
+                                        EstacionSensorScreen(
+                                            uiState.sensorWeather.temperature.toFloat(),
+                                            uiState.sensorWeather.humidity.toFloat(),
+                                            uiState.sensorWeather.pressure.toFloat(),
+                                            backgroundColor
+                                        )
+                                    }
+                                }
+                            )
+                    }
+                } else {
+                    ToolCard(title = "CLIMA",
+                        subtitle = "${uiState.apiWeather?.temperature ?: "Desconocida"} °C",
+                        backgroundColor = Color(0xFF263C5C),
+                        icon = R.drawable.clima,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(190.dp),
+                        verticalLayout = true,
+                        onClick = { showWeatherAPIDialog = true }
+                        )
+
+
+                    if (showWeatherAPIDialog && uiState.apiWeather != null) {
+                        AlertDialog(
+                            onDismissRequest = { showWeatherAPIDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showWeatherAPIDialog = false }) {
+                                    Text("Cerrar")
+                                }
+                            },
+                            text = {
+                                Column(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 500.dp)
+                                ) {
+                                EstacionScreen(
+                                    uiState.apiWeather.temperature.toFloat(),
+                                    uiState.apiWeather.humidity.toFloat(),
+                                    uiState.apiWeather.pressure.toFloat(),
+                                    uiState.apiWeather.windSpeed.toFloat(),
+                                    uiState.apiWeather.windDirection.toFloat(),
+                                    uiState.apiWeather.locationName,
+                                    getWeatherDescription(uiState.apiWeather.weatherCode),
+                                    getWeatherDescriptionImage(uiState.apiWeather.weatherCode),
+                                    backgroundColor
+                                )
+                            }
+                            })
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if(uiState.sensorWeather == null || !uiState.sensorWeather.isSensorAvailable || uiState.optionWeatherAPI == true) {
+                if (!hasPermission) {
+                    Text(
+                        "Para obtener clima real, otorga permiso de ubicación.",
+                        color = fontsColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("Permitir ubicación", color = Color.White)
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                requestLocation(mainViewModel, fusedLocationClient)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("Obtener clima con ubicación", color = Color.White)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+
+            if(uiState.proximity != null && uiState.proximity.isSensorAvailable) {
+                ToolCard(
+                    title = "DETECTOR DE\nPROXIMIDAD",
+                    subtitle = if(uiState.proximity.isNear) "CERCA" else "LEJOS",
+                    backgroundColor = if(!uiState.proximity.isNear) Color(0xFF263C5C) else Color(0xFF5C2626),
+                    icon = R.drawable.aproximacion,
+                    modifier = Modifier.height(150.dp),
+                    verticalLayout = false,
+                    onClick = { showProximityDialog = true }
+                )
+                if(showProximityDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showProximityDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showProximityDialog = false }) {
+                                Text("Cerrar")
+                            }
+                        },
+                        text = {
+                            AproximacionScreen(uiState.proximity.distance, uiState.proximity.isNear, backgroundColor)
+                        })
+                }
+            } else {
+                ToolCard(
+                    title = "DETECTOR DE\nPROXIMIDAD",
+                    subtitle = "NO DISPONIBLE",
+                    backgroundColor = Color(0xFF263C5C),
+                    icon = R.drawable.proximidadnodisponible,
+                    modifier = Modifier.height(150.dp),
+                    verticalLayout = false
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if(uiState.light != null && uiState.light.isSensorAvailable) {
+                ToolCard(
+                    title = "PANTALLA\nADAPTIVA",
+                    subtitle = if(uiState.optionLightDarkMode == false) uiState.light.currentState else
+                    when(modeManually) {
+                        true -> "Dark Mode"
+                        false -> "Light Mode"
+                    },
+                    backgroundColor = Color(0xFF0E6E2E),
+                    icon = R.drawable.luz,
+                    modifier = Modifier.height(150.dp),
+                    verticalLayout = false,
+                    onClick = { showLightDialog = true }
+                )
+
+                if(showLightDialog && uiState.optionLightDarkMode == false) {
+                    AlertDialog(
+                        onDismissRequest = { showLightDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showLightDialog = false }) {
+                                Text("Cerrar")
+                            }
+                        },
+                        text = {
+                            LuzScreen(uiState.light.lux, uiState.light.currentState, backgroundColor)
+                        })
+
+                }
+            } else {
+                ToolCard(
+                    title = "PANTALLA\nADAPTIVA",
+                    subtitle = "NO DISPONIBLE, SOLO MANUAL",
+                    backgroundColor = Color(0xFF0E6E2E),
+                    icon = R.drawable.luz,
+                    modifier = Modifier.height(150.dp),
+                    verticalLayout = false
+                )
+            }
+            Spacer(modifier = Modifier.height(50.dp))
+
+            if (uiState.optionLightDarkMode == true) {
+                Card(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .wrapContentSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF0E6E2E)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                            Text(
+                                text = if (!modeManually) "Modo Claro" else "Modo Oscuro",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                        Switch(
+                            checked = modeManually,
+                            onCheckedChange = {
+                                mainViewModel.setManualDarkMode(it)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color(0xFF00E676),
+                                uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = Color.DarkGray,
+                                checkedTrackColor = Color(0xFF1B5E20)
+                            ),
+                            modifier = Modifier.scale(0.8f)
+                        )
+                    }
+                }
             }
         }
+    }
+}
 
-        Spacer(Modifier.height(24.dp))
+@Composable
+fun ToolCard(
+    title: String,
+    subtitle: String,
+    backgroundColor: Color,
+    icon: Int,
+    modifier: Modifier = Modifier,
+    verticalLayout: Boolean,
+    customContent: (@Composable () -> Unit)? = null,
+    onClick: (() -> Unit)? = null
+) {
+    Card(
+        modifier = modifier.clickable { onClick?.invoke() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    ) {
+        if (verticalLayout) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (customContent != null) {
+                    customContent()
+                } else {
+                    Image(
+                        painter = painterResource(id = icon),
+                        contentDescription = title,
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    lineHeight = 28.sp,
+                    textAlign = TextAlign.Center
+                )
+                if (subtitle.isNotEmpty()) {
+                    Text(
+                        text = subtitle,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
 
-        Text("Brújula")
-        Text("Dirección cardinal: ${uiState.compass?.cardinalPoint}")
-        Text("Sensor disponible: ${uiState.compass?.isSensorAvailable}")
-        Text("Norte a: ${uiState.compass?.direction?.let { 360 - it } ?: "-"}°")
-
-        Spacer(Modifier.height(16.dp))
-
-        Text(if(uiState.proximity?.isNear == true) "🟣 Proximidad" else "🔴 Proximidad")
-        Text("Está cerca: ${uiState.proximity?.isNear}")
-        Text("Distancia: ${uiState.proximity?.distance}")
-
-        Spacer(Modifier.height(16.dp))
-
-        Text("Luz")
-        Text("Lux actual: ${uiState.light?.lux}")
-        Text("Modo Claro/Oscuro: ${uiState.light?.currentState}")
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = title,
+                    modifier = Modifier.size(100.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = title,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        lineHeight = 24.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    if (subtitle.isNotEmpty()) {
+                        Text(
+                            text = subtitle,
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -189,108 +552,128 @@ private suspend fun requestLocation(
     }
 }
 
+@Composable
+fun CompassView(direction: Float) {
+    var previousRotation by rememberSaveable { mutableStateOf(direction) }
 
+    val delta = ((direction - previousRotation + 540f) % 360f) - 180f
+    val adjustedRotation = (previousRotation + delta + 360f) % 360f
+    previousRotation = adjustedRotation
 
+    val animatedRotation by animateFloatAsState(
+        targetValue = -adjustedRotation,
+        animationSpec = tween(durationMillis = 300, easing = LinearEasing),
+        label = "compass_rotation"
+    )
 
-
-
-
-/*@Composable
-fun HomeScreen(navController: NavHostController, mainViewModel: MainViewModel) {
-    val context = LocalContext.current
-    val uiState = mainViewModel.uiState
-
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-    var hasPermission by remember { mutableStateOf(false) }
-    var location by remember { mutableStateOf<Location?>(null) }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { perms ->
-        hasPermission = perms[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                perms[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
+    Box(
+        modifier = Modifier
+            .size(100.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.brujula),
+            contentDescription = "Brújula giratoria",
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    rotationZ = animatedRotation
+                    transformOrigin = TransformOrigin.Center
+                }
         )
     }
+}
 
-    LaunchedEffect(hasPermission) {
-        if (hasPermission) {
-            try {
-                val loc = fusedLocationClient.getCurrentLocation(
-                    Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                    null
-                ).await()
-                location = loc
-                loc?.let { mainViewModel.sendLocationData(it.latitude, it.longitude) }
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-            }
-        }
-    }
 
-    LaunchedEffect(Unit) {
-        mainViewModel.getAllSensors()
-    }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun Home2ScreenPreview() {
+    Box(
         modifier = Modifier
-            .padding(top = 25.dp)
             .fillMaxSize()
+            .background(Color.Black)
+            .padding(horizontal = 20.dp, vertical = 40.dp)
     ) {
-        Text("Brújula")
-        Text("Dirección cardinal: ${uiState.compass?.cardinalPoint ?: "-"}")
-        Text("Sensor disponible: ${uiState.compass?.isSensorAvailable ?: false}")
-        Text("Norte a: ${uiState.compass?.direction?.let { 360 - it } ?: "-"}")
-        Spacer(Modifier.height(16.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.fillMaxSize()
+        ) {
 
-        Text("Clima")
-        if(uiState.weather?.isSensorAvailable == true) {
-            Text("Sensor disponible, leyendo del dispositivo")
-        } else {
-            Text("Usando datos de Open Meteo")
-        }
-        Text("Temperatura: ${uiState.weather?.temperature ?: "-"} °C")
-        Text("Presión atmosférica: ${uiState.weather?.pressure ?: "-"} hPa")
-        Text("Humedad: ${uiState.weather?.humidity ?: "-"} %")
-        if (uiState.weather?.isSensorAvailable == false || uiState.weather == null) {
-            Text("Velocidad del viento: ${uiState.weather?.windSpeed ?: "-"}")
-            Text("Dirección del viento: ${uiState.weather?.windDirection ?: "-"}")
-            Text("Ubicación: ${uiState.weather?.locationName ?: "-"} ")
-            Spacer(Modifier.height(8.dp))
-            Button(onClick = {
-                location?.let {
-                    coroutineScope.launch {
-                        mainViewModel.sendLocationData(it.latitude, it.longitude)
-                    }
-                }
-            }) {
-                Text("Actualizar datos clima")
+            // Logo y título
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.xplorelogo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(55.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "HERRAMIENTAS",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp
+                )
             }
+
+            Spacer(modifier = Modifier.height(70.dp))
+
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ToolCard(
+                    title = "BRÚJULA",
+                    subtitle = "NORTE",
+                    backgroundColor = Color(0xFF0E6E2E),
+                    icon = R.drawable.brujula,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(190.dp),
+                    verticalLayout = true
+                )
+
+                ToolCard(
+                    title = "CLIMA",
+                    subtitle = "25.6 °C",
+                    backgroundColor = Color(0xFF263C5C),
+                    icon = R.drawable.clima,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(190.dp),
+                    verticalLayout = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(50.dp))
+
+
+            ToolCard(
+                title = "DETECTOR DE\nAPROXIMACIÓN",
+                subtitle = "",
+                backgroundColor = Color(0xFF263C5C),
+                icon = R.drawable.aproximacion,
+                modifier = Modifier.height(150.dp),
+                verticalLayout = false
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ToolCard(
+                title = "PANTALLA\nADAPTIVA",
+                subtitle = "",
+                backgroundColor = Color(0xFF0E6E2E),
+                icon = R.drawable.luz,
+                modifier = Modifier.height(150.dp),
+                verticalLayout = false
+            )
         }
-
-        Spacer(Modifier.height(16.dp))
-
-        Text("Proximidad")
-        Text("Está cerca: ${uiState.proximity?.isNear ?: "-"}")
-        Text("Distancia: ${uiState.proximity?.distance ?: "-"} cm")
-        Spacer(Modifier.height(16.dp))
-
-        Text("Luz")
-        Text("Lux actual: ${uiState.light?.lux ?: "-"}")
-        Text("Modo Claro/Oscuro: ${uiState.light?.currentState ?: "-"}")
     }
-}*/
-
+}

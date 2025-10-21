@@ -22,7 +22,7 @@ fun XploreNavHost(navHostController: NavHostController,
 ) {
     NavHost(navController = navHostController, startDestination = startDestination) {
         composable(Screen.Home.route) {
-            Home2Screen(navHostController, mainViewModel)
+            HomeScreen(navHostController, mainViewModel)
         }
         composable(Screen.Settings.route) {
             ConfiguracionScreen(configurationViewModel, backgroundColor, textColor)
